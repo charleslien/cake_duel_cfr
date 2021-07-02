@@ -3,4 +3,4 @@ Counterfactual Regret Minimization AI for Cake Duel
 
 Followed steps at [An Introduction to Counterfactual Regret Minimization](http://modelai.gettysburg.edu/2013/cfr/cfr.pdf)
 
-Cake Duel game by Sizigi Studios
+[Cake Duel](https://cakeduel.com/) game by Sizigi Studios
