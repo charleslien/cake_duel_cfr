@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Mapping, Tuple
 
-import card as cd
+import card as cd, utils
 import utils
 
 class MainAction(utils.StrValueEnum):
@@ -18,7 +18,7 @@ class Action:
   main_action: MainAction
   count: int = None
   card: cd.Card = None
-  played_cards: Tuple[cd.Card, ...] = None
+  played_cards: Mapping[cd.Card, int] = None
 
   def __str__(self):
     if self.main_action == MainAction.CLAIM:
@@ -30,15 +30,37 @@ class Action:
               ')')
     return f'({self.player},{self.main_action.value})'
 
-def getAttackingActions(active_player, hand, claimable):
-  all_actions = Action(active_player, MainAction.PASS)
+def claimIsBluff(action):
+  for c in cd.Card:
+    if c == action.card:
+      if action.played_cards.get(c, 0) != action.count:
+        return True
+    else:
+      if action.played_cards.get(c, 0) != 0:
+        return True
 
-  for c in card.getCardsByType(card.ActionType.ATTACK):
+  return False
+
+def handAfterClaim(claim, hand):
+  hand = dict(hand)
+  for c in cd.Card:
+    num_cards_played = claim.played_cards.get(c, 0)
+    if hand.get(c, 0) < num_cards_played:
+      raise ValueError(f'invalid action: tried to play {claim.played_cards[c]} cards when there ' +
+                       f'is only {hand[c]}')
+    hand[c] = hand.get(c, 0) - num_cards_played
+
+  return utils.frozendict(hand)
+
+def getAttackingActions(active_player, hand, claimable):
+  all_actions = [Action(active_player, MainAction.PASS)]
+
+  for c in cd.getCardsByType(cd.ActionType.ATTACK):
     max_claim_num = min(
         sum(hand.values()),
         claimable.get(c, 0)
     )
-    for num_cards_to_claim in range(1, max_claim_num):
+    for num_cards_to_claim in range(1, max_claim_num + 1):
       for cards_to_claim in utils.getAllUniqueCombinationsOfCards(
           hand, num_cards_to_claim
       ):
@@ -58,9 +80,9 @@ def getDefendingActions(active_player, hand, attack, claimable):
       Action(active_player, MainAction.CHALLENGE)
   ]
 
-  for c in card.getCardsByType(
-      card.ActionType.DEFEND,
-      damage_type=card.getDamageType(attack.card)
+  for c in cd.getCardsByType(
+      cd.ActionType.DEFEND,
+      damage_type=cd.getDamageType(attack.card)
   ):
     max_claim_num = min(
         sum(hand.values()),

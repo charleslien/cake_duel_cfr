@@ -18,6 +18,15 @@ class Card(utils.StrValueEnum):
   SCIENTIST = 4
   SIR_WOLFY = 5
 
+CAKE_VALUE = {
+    Card.SOLDIER: 1,
+    Card.ARCHER: 1,
+    Card.DEFENDER: 1,
+    Card.WIZARD: 2,
+    Card.SCIENTIST: 2,
+    Card.SIR_WOLFY: 0
+}
+
 def getDamageType(card):
   if card in [Card.SOLDIER, Card.ARCHER, Card.DEFENDER]:
     return DamageType.PHYSICAL

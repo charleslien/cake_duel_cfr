@@ -1,7 +1,21 @@
 #!/usr/bin/python3
 
 import enum
+from frozendict import frozendict as fd
 import random
+
+import card
+
+class frozendict(fd):
+  def __repr__(self):
+    return repr({
+        c: self[c] for c in self if self[c] != 0
+    })
+
+  def __str__(self):
+    return str({
+        c: self[c] for c in self if self[c] != 0
+    })
 
 class StrValueEnum(enum.IntEnum):
   def __str__(self):
@@ -29,10 +43,15 @@ def shuffleList(lst):
     lst[i] = lst[j]
     lst[j] = tmp
 
-def drawCards(deck, num_cards):
+def drawCards(deck, num_cards, original_hand=None):
+  original_hand = original_hand or {}
+  original_hand = dict(original_hand)
   cards_to_draw = min(num_cards, len(deck))
 
-  return listToCountDict(deck[-cards_to_draw:]), deck[:-cards_to_draw]
+  for c in deck[-cards_to_draw:]:
+    original_hand[c] =  original_hand.get(c, 0) + 1
+  
+  return original_hand, deck[:-cards_to_draw]
 
 def getAllUniqueCombinationsOfCards(count_dict, num_cards):
   ret = []
@@ -45,7 +64,7 @@ def getAllUniqueCombinationsOfCards(count_dict, num_cards):
     if count_dict.get(c, 0) >= num_left:
       temp_dict = curr.copy()
       temp_dict[c] = num_left
-      red.append(frozendict(temp_dict))
+      ret.append(frozendict(temp_dict))
       max_num_of_c -= 1
 
     try:
@@ -55,7 +74,8 @@ def getAllUniqueCombinationsOfCards(count_dict, num_cards):
 
     for num_of_c in range(max_num_of_c + 1):
       temp_dict = curr.copy()
-      temp_dict[c] = num_of_c
+      if num_of_c > 0:
+        temp_dict[c] = num_of_c
       stack.append((next_card, temp_dict, num_left - num_of_c))
 
   return ret
