@@ -51,7 +51,7 @@ def drawCards(deck, num_cards, original_hand=None):
   for c in deck[-cards_to_draw:]:
     original_hand[c] =  original_hand.get(c, 0) + 1
   
-  return original_hand, deck[:-cards_to_draw]
+  return frozendict(original_hand), deck[:-cards_to_draw]
 
 def getAllUniqueCombinationsOfCards(count_dict, num_cards):
   ret = []

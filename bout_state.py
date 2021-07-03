@@ -119,7 +119,7 @@ class BoutState:
       return BoutState(
           claimable=self.claimable,
           ordered_deck=deck,
-          cakes=new_cakes,
+          cakes=tuple(new_cakes),
           attacker=defender,
           attack=None,
           defense=None,
@@ -183,7 +183,7 @@ class BoutState:
       return BoutState(
           claimable=self.claimable,
           ordered_deck=deck,
-          cakes=new_cakes,
+          cakes=tuple(new_cakes),
           attacker=defender,
           attack=None,
           defense=None,
